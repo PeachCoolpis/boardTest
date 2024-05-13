@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @ToString
@@ -17,6 +20,11 @@ public class Role {
     private Long id;
     
     private String roleName;
+    
+    
+    @OneToMany(mappedBy = "role")
+    @ToString.Exclude
+    List<MemberRole> memberRoles = new ArrayList<>();
     
 
     

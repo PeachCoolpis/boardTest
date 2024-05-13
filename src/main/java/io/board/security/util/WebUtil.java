@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class WebUtil {
     
     private final static String XML_HTTP_REQUEST = "XMLHttpRequest";
-    private final static String X_REQUESTED_WITH = "XMLHttpRequest";
+    private static final String X_REQUESTED_WITH = "X-Requested-With";
     
     private final static String CONTENT_TYPE = "Content-type";
     private static final String CONTENT_TYPE_JSON = "application/json";

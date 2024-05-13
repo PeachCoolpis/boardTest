@@ -1,0 +1,9 @@
+### Send POST request with json body
+POST http://localhost:8080/api/save
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "123456",
+  "roles" : "ROLE_MEMBER"
+}

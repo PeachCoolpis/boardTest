@@ -55,7 +55,7 @@ public class SecurityConfig {
         http
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/api","/api/login","/api/save","/api/findAll").permitAll()
                 )
                 .addFilterBefore(spaAuthenticationFilter(http,manager), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new CsrfCookieFilter(), BasicAuthenticationFilter.class)

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RequiredArgsConstructor
@@ -35,9 +36,14 @@ public class MemberDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("회원 없음");
         }
         
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        //List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
         
         MemberDto memberDto = MemberDto.createMemberDto(member);
+        
+        List<GrantedAuthority> authorities = memberDto.getMemberRoles()
+                .stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
         
         return new MemberContext(memberDto,authorities);
     }

@@ -15,7 +15,7 @@ import java.util.Set;
 
 @Entity
 @Getter
-public class Member extends BaseDate{
+public class Member extends BaseDate {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,12 +29,10 @@ public class Member extends BaseDate{
     
     
     @OneToMany(mappedBy = "member")
-    @JoinColumn(name = "member_role_id")
+    @ToString.Exclude
     private List<MemberRole> memberRoles = new ArrayList<>();
-
     
-
-
+    
     public static Member createMember(MemberDto memberDto) {
         Member member = new Member();
         member.username = memberDto.getUsername();

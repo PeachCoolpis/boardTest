@@ -28,4 +28,20 @@ public class MemberRole extends BaseDate {
         memberRole.role = role;
         return memberRole;
     }
+    
+    public void setMember(Member member) {
+        if (this.member != null) {
+            this.member.getMemberRoles().remove(this);
+        }
+        this.member = member;
+        member.getMemberRoles().add(this);
+    }
+    
+    public void setRole(Role role) {
+        if (this.role != null) {
+            this.role.getMemberRoles().remove(this);
+        }
+        this.role = role;
+        role.getMemberRoles().add(this);
+    }
 }

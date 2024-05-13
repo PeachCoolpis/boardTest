@@ -2,6 +2,7 @@ package io.board.service.impl;
 
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.board.dto.MemberDto;
 import io.board.entity.*;
@@ -14,7 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Transactional
 @RequiredArgsConstructor
@@ -34,28 +37,22 @@ public class MemberServiceImpl implements MemberService {
         QMemberRole memberRole = QMemberRole.memberRole;
         QRole role = QRole.role;
         
-        List<MemberDto> memberDtos = queryFactory
-                .select(Projections.bean(MemberDto.class,
-                        member.id.as("id"),
-                        member.username.as("username"),
-                        member.password.as("password")
-                ))
+        List<Member> members = queryFactory
+                .select(member)
                 .from(member)
+                .join(memberRole).on(member.id.eq(memberRole.member.id)).fetchJoin()
+                .join(role).on(memberRole.role.id.eq(role.id))
                 .fetch();
         
         
-        for (MemberDto memberDto : memberDtos) {
-            List<String> roles = queryFactory
-                    .select(role.roleName)
-                    .from(memberRole)
-                    .join(member).on(memberRole.id.eq(member.id))
-                    .join(role).on(memberRole.id.eq(role.id))
-                    .where(memberRole.member.id.eq(memberDto.getId()))
-                    .fetch();
-            
-            memberDto.setRoles(roles);
-        }
-        return memberDtos;
+        return members.stream()
+                .map(m -> new MemberDto(
+                        m.getId(),
+                        m.getUsername(),
+                        null,
+                        m.getMemberRoles().stream().map(a -> a.getRole().getRoleName()).collect(Collectors.toList())
+                ))
+                .collect(Collectors.toList());
     }
     
     
@@ -64,9 +61,10 @@ public class MemberServiceImpl implements MemberService {
         Member createMember = Member.createMember(memberDto);
         createMember.passSetting(passwordEncoder.encode(memberDto.getPassword()));
         Member member = memberRepository.save(createMember);
-        Role role = roleRepository.findByName("ROLE_USER");
-        roleRepository.save(role);
-        MemberRole memberRole = MemberRole.createMemberRole(member, role);
+        Role role = roleRepository.findByName(memberDto.getMemberRoles().stream().findFirst().orElse(null));
+        MemberRole memberRole = new MemberRole();
+        memberRole.setMember(member);
+        memberRole.setRole(role);
         memberRoleRepository.save(memberRole);
         return member.getId();
     }
@@ -92,9 +90,9 @@ public class MemberServiceImpl implements MemberService {
                 .where(member.id.eq(id))
                 .fetchOne();
         
-        if (memberDto != null) {
-            memberDto.setRoles(roles);
-        }
+//        if (memberDto != null) {
+//            memberDto.setRoles(roles);
+//        }
         return memberDto;
     }
     
