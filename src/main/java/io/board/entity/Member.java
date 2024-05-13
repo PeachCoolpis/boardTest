@@ -2,12 +2,15 @@ package io.board.entity;
 
 
 import io.board.dto.MemberDto;
+import io.board.dto.MemberRoleDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
 import org.hibernate.annotations.Comment;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -24,6 +27,10 @@ public class Member extends BaseDate{
     @Comment(value = "비밀 번호")
     private String password;
     
+    
+    @OneToMany(mappedBy = "member")
+    @JoinColumn(name = "member_role_id")
+    private List<MemberRole> memberRoles = new ArrayList<>();
 
     
 

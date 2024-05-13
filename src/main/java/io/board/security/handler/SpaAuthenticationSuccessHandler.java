@@ -35,6 +35,6 @@ public class SpaAuthenticationSuccessHandler implements AuthenticationSuccessHan
         if (session == null) {
             return;
         }
-        session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION); // 마지막 예외지우기
+        session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION); // 마지막 예외 지우기
     }
 }

@@ -10,6 +10,7 @@ public class MemberRole extends BaseDate {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_role_id")
     private Long id;
     
     @ManyToOne(fetch = FetchType.LAZY)
