@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -37,6 +38,8 @@ public class MemberDto {
         memberDto.id = member.getId();
         memberDto.username = member.getUsername();
         memberDto.password = member.getPassword();
+        memberDto.memberRoles = member.getMemberRoles().stream()
+                .map(r -> r.getRole().getRoleName()).collect(Collectors.toList());
         return memberDto;
     }
     

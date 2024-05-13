@@ -45,14 +45,14 @@ public class SpaAuthenticationFilter extends AbstractAuthenticationProcessingFil
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
         
         
-        if (!HttpMethod.POST.name().equals(request.getMethod()) || WebUtil.isAjax(request)) {
+        if (!HttpMethod.POST.name().equals(request.getMethod()) || !WebUtil.isAjax(request)) {
             throw new IllegalArgumentException("Authentication method not supported");
         }
         
         MemberDto memberDto = mapper.readValue(request.getReader(), MemberDto.class);
         
         
-        if (!StringUtils.hasText(memberDto.getUsername()) || StringUtils.hasText(memberDto.getPassword())) {
+        if (!StringUtils.hasText(memberDto.getUsername()) || !StringUtils.hasText(memberDto.getPassword())) {
             throw new AuthenticationServiceException("Username or Password provided");
         }
         
