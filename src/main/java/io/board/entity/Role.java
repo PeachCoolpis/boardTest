@@ -26,6 +26,11 @@ public class Role {
     @ToString.Exclude
     List<MemberRole> memberRoles = new ArrayList<>();
     
+    
+    @OneToMany(mappedBy = "role")
+    @ToString.Exclude
+    List<ResourcesRole> resourcesRoles = new ArrayList<>();
+    
 
     
     public static Role createRole(String name) {

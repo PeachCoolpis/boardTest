@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @ToString
@@ -27,6 +30,10 @@ public class Resources {
     @Column(name = "resource_type")
     private String resourceType;
     
+    
+    @OneToMany(mappedBy = "resources")
+    @ToString.Exclude
+    List<ResourcesRole> resourcesRoles = new ArrayList<>();
     
     
 }

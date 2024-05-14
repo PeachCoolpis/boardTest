@@ -24,5 +24,21 @@ public class ResourcesRole {
     private Resources resources;
     
     
+    public void setResources(Resources resources) {
+        if (this.resources != null) {
+            this.resources.getResourcesRoles().remove(this);
+        }
+        this.resources = resources;
+        resources.getResourcesRoles().add(this);
+    }
+    
+    public void setRole(Role role) {
+        if (this.role != null) {
+            this.role.getResourcesRoles().remove(this);
+        }
+        this.role = role;
+        role.getResourcesRoles().add(this);
+    }
+    
     
 }

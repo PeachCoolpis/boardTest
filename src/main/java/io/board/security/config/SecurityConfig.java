@@ -10,12 +10,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -42,6 +44,7 @@ public class SecurityConfig {
     private final AuthenticationEntryPoint spaAuthenticationEntryPoint;
     private final AccessDeniedHandler spaAccessDeniedHandler;
     private final CsrfTokenRequestAttributeHandler spaCsrfTokenRequestHandler;
+    private final AuthorizationManager<RequestAuthorizationContext> spaAuthorizationManager;
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -55,21 +58,17 @@ public class SecurityConfig {
         http
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api","/api/login","/api/save","/api/findAll").permitAll()
-                )
+                        .anyRequest().access(spaAuthorizationManager))
                 .addFilterBefore(spaAuthenticationFilter(http,manager), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .csrfTokenRequestHandler(spaCsrfTokenRequestHandler)
-                )
+                        .csrfTokenRequestHandler(spaCsrfTokenRequestHandler))
                 .cors(cors -> cors.configurationSource(configurationSource()))
                 .authenticationManager(manager)
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(spaAuthenticationEntryPoint)
-                        .accessDeniedHandler(spaAccessDeniedHandler)
-                )
-        ;
+                        .accessDeniedHandler(spaAccessDeniedHandler));
         
         return http.build();
     }
