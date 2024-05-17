@@ -2,7 +2,8 @@ package io.board.security.config;
 
 
 import io.board.security.csrf.CsrfCookieFilter;
-import io.board.security.filter.SpaAuthenticationFilter;
+import io.board.security.filter.authentication.JwtAuthenticationFilter;
+import io.board.security.filter.authentication.SpaAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -14,17 +15,16 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -45,6 +45,7 @@ public class SecurityConfig {
     private final AccessDeniedHandler spaAccessDeniedHandler;
     private final CsrfTokenRequestAttributeHandler spaCsrfTokenRequestHandler;
     private final AuthorizationManager<RequestAuthorizationContext> spaAuthorizationManager;
+   
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -59,11 +60,13 @@ public class SecurityConfig {
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().access(spaAuthorizationManager))
-                .addFilterBefore(spaAuthenticationFilter(http,manager), UsernamePasswordAuthenticationFilter.class)
+                //.addFilterBefore(spaAuthenticationFilter(http,manager), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter(manager), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
-                .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .csrfTokenRequestHandler(spaCsrfTokenRequestHandler))
+                .csrf(AbstractHttpConfigurer::disable
+                        //.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        //.csrfTokenRequestHandler(spaCsrfTokenRequestHandler)
+                        )
                 .cors(cors -> cors.configurationSource(configurationSource()))
                 .authenticationManager(manager)
                 .exceptionHandling(exception -> exception
@@ -79,6 +82,13 @@ public class SecurityConfig {
         spaAuthenticationFilter.setAuthenticationSuccessHandler(spaAuthenticationSuccessHandler);
         spaAuthenticationFilter.setAuthenticationFailureHandler(spaAuthenticationFailureHandler);
         return spaAuthenticationFilter;
+    }
+    private JwtAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager manager) {
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter();
+        jwtAuthenticationFilter.setAuthenticationManager(manager);
+        jwtAuthenticationFilter.setAuthenticationSuccessHandler(spaAuthenticationSuccessHandler);
+        jwtAuthenticationFilter.setAuthenticationFailureHandler(spaAuthenticationFailureHandler);
+        return jwtAuthenticationFilter;
     }
     
     

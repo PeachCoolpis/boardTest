@@ -22,12 +22,7 @@ public class MemberRole extends BaseDate {
     private Member member;
     
     
-    public static MemberRole createMemberRole(Member member , Role role) {
-        MemberRole memberRole = new MemberRole();
-        memberRole.member = member;
-        memberRole.role = role;
-        return memberRole;
-    }
+
     
     public void setMember(Member member) {
         if (this.member != null) {
